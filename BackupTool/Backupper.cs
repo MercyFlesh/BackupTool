@@ -1,13 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.Extensions.Logging;
 
 namespace BackupTool
 {
     public class Backupper
     {
+        private readonly ILogger _logger;
+
+        public Backupper(ILogger<Backupper> logger)
+        {
+            _logger = logger;
+        }
+
         public static void Backup(string baseDir, string targetDir)
         {
             ArgumentNullException.ThrowIfNull(baseDir, nameof(baseDir));

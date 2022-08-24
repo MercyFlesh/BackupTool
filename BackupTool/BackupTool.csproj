@@ -8,9 +8,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Update="settings.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="6.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BackupTool.FileLogger\BackupTool.FileLogger.csproj" />
   </ItemGroup>
 
 </Project>
