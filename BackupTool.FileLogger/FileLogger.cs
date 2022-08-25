@@ -4,12 +4,12 @@ namespace BackupTool.FileLogger
 {
     public class FileLogger : ILogger
     {
-        private readonly string filePath;
+        private readonly string savePath;
         private static object _lock = new object();
 
-        public FileLogger(string filePath)
+        public FileLogger(string savePath)
         {
-            this.filePath = filePath;
+            this.savePath = savePath;
         }
 
         public IDisposable BeginScope<TState>(TState state)
@@ -28,7 +28,7 @@ namespace BackupTool.FileLogger
             {
                 lock (_lock)
                 {
-                    string fullFilePath = Path.Combine(filePath, DateTime.Now.ToString("yyyy-MM-dd") + "_log.txt");
+                    string fullFilePath = Path.Combine(savePath, DateTime.Now.ToString("yyyy-MM-dd") + "_log.log");
                     var n = Environment.NewLine;
                     string exc = "";
                     if (exception != null) exc = n + exception.GetType() + ": " + exception.Message + n + exception.StackTrace + n;
