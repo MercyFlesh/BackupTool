@@ -1,6 +1,6 @@
 ﻿{
-  "base_dirs": [
+  "baseDirs": [
     "C:\\Users\\artem\\source\\repos\\test_directory"
   ],
-  "target_dir": "C:\\Users\\artem\\source\\repos\\target_test"
+  "targetDir": null
 }
