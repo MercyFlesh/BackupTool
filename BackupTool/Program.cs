@@ -1,9 +1,6 @@
 ﻿using System.Text.Json;
-using System.Text.Json.Nodes;
-using System.Text.Json.Serialization;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
 using BackupTool;
 using BackupTool.FileLogger;
 
@@ -30,7 +27,7 @@ using var serviceProvider = new ServiceCollection()
             : (LogLevel)Enum.Parse(typeof(LogLevel), logSettings.LogLevel);
         
         loggerBuilder
-            .AddProvider(new FileLoggerProvider(logSettings?.LogFile ?? Environment.CurrentDirectory))
+            .AddProvider(new FileLoggerProvider(logSettings?.LogFileDir ?? Environment.CurrentDirectory))
             .AddConsole()
             .SetMinimumLevel(logLevel);
     })
@@ -41,7 +38,6 @@ var logger = serviceProvider.GetRequiredService<ILogger<Program>>();
 try
 {
     logger.LogInformation("Start BackupTool");
-
 
     if (settings?.BackupSettings is not { } backupSettings)
     {
@@ -57,7 +53,7 @@ try
         {
             var backupService = serviceProvider.GetService<IBackupService>();
             foreach (var dir in sourceDirs)
-                backupService?.Backup(dir, backupSettings.TargetDir, backupSettings.Overwrite);   
+                backupService?.Backup(dir, backupSettings.TargetDir, backupSettings.Overwrite);
         }
     }
 }

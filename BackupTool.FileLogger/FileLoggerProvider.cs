@@ -4,15 +4,17 @@ namespace BackupTool.FileLogger
 {
     public class FileLoggerProvider : ILoggerProvider
     {
-        private readonly string path;
+        private readonly string filePath;
 
-        public FileLoggerProvider(string filePath = "")
+        public FileLoggerProvider(string savePath)
         {
-            path = filePath;
+            filePath = Path.Combine(savePath, $"{DateTime.Now.ToString("dd-MM-yyyy HH-mm")}.log");
+            using var fs = File.Create(filePath);
         }
+
         public ILogger CreateLogger(string categoryName)
         {
-            return new FileLogger(path);
+            return new FileLogger(filePath);
         }
 
         public void Dispose()

@@ -15,7 +15,7 @@ namespace BackupTool
     {
         public string LogLevel { get; init; } = null!;
 
-        public string LogFile { get; init; } = null!;
+        public string LogFileDir { get; init; } = null!;
     }
 
     public class BackupSettings
