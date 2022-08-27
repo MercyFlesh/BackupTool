@@ -6,7 +6,7 @@ namespace BackupTool.FileLogger
     {
         private readonly string path;
 
-        public FileLoggerProvider(string filePath)
+        public FileLoggerProvider(string filePath = "")
         {
             path = filePath;
         }

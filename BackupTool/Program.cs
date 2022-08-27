@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -7,45 +8,58 @@ using BackupTool;
 using BackupTool.FileLogger;
 
 
+if (!File.Exists("settings.json"))
+{
+    Console.BackgroundColor = ConsoleColor.DarkRed;
+    Console.ForegroundColor = ConsoleColor.Black;
+    Console.Write("fail");
+    Console.ResetColor();
+    Console.WriteLine($": Could not find settings file settings.json");
+    Environment.Exit(-1);
+}
+
+var json = File.ReadAllText("settings.json");
+var settings = JsonSerializer.Deserialize<Settings>(json);
+
 using var serviceProvider = new ServiceCollection()
     .AddLogging(loggerBuilder => 
     {
+        var logSettings = settings?.LogSettings;
+        var logLevel = logSettings?.LogLevel is null 
+            ? LogLevel.Information 
+            : (LogLevel)Enum.Parse(typeof(LogLevel), logSettings.LogLevel);
+        
         loggerBuilder
-            .AddProvider(new FileLoggerProvider(""))
-            .AddConsole();
+            .AddProvider(new FileLoggerProvider(logSettings?.LogFile ?? Environment.CurrentDirectory))
+            .AddConsole()
+            .SetMinimumLevel(logLevel);
     })
     .AddSingleton<IBackupService, BackupService>()
     .BuildServiceProvider();
 
 var logger = serviceProvider.GetRequiredService<ILogger<Program>>();
-
 try
 {
     logger.LogInformation("Start BackupTool");
 
-    var json = File.ReadAllText("settings.json");
-    var settingsObj = JsonNode.Parse(json);
 
-    var backupService = serviceProvider.GetService<IBackupService>();
-    var target_dir = (string)settingsObj["targetDir"];
-
-    if (settingsObj["baseDirs"]?.AsArray() is { } base_dirs)
+    if (settings?.BackupSettings is not { } backupSettings)
     {
-        foreach (var dir in base_dirs)
-            backupService?.Backup((string)dir, target_dir);
+        logger.LogInformation("No Backup section in settings");
     }
     else
     {
-        logger.LogInformation("baseDirs parameter is null, no base directory to copy");
+        if (backupSettings.SourceDirs is not { } sourceDirs)
+        {
+            logger.LogInformation("sourceDirs parameter settings is null, no source directory to copy");
+        }
+        else
+        {
+            var backupService = serviceProvider.GetService<IBackupService>();
+            foreach (var dir in sourceDirs)
+                backupService?.Backup(dir, backupSettings.TargetDir, backupSettings.Overwrite);   
+        }
     }
-}
-catch (FileNotFoundException ex)
-{
-    logger.LogError($"Could not find settings file {ex.FileName}");
-}
-catch (JsonException ex)
-{
-    logger.LogError($"Invalid settings json file, error line number: {ex.LineNumber}");
 }
 catch (ArgumentNullException ex)
 {
@@ -53,7 +67,7 @@ catch (ArgumentNullException ex)
 }
 catch (Exception ex)
 {
-    Console.WriteLine(ex);
+    logger.LogError($"Unhandled critical error received during progress: {ex.Message}");
 }
 finally
 {

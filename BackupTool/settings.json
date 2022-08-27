@@ -1,6 +1,13 @@
 ﻿{
-  "baseDirs": [
-    "C:\\Users\\artem\\source\\repos\\test_directory"
-  ],
-  "targetDir": null
+  "Logging": {
+    "LogLevel": "Debug",
+    "LogFile": ""
+  },
+  "Backup": {
+    "SourceDirs": [
+      "C:\\Users\\artem\\source\\repos\\test_directory"
+    ],
+    "TargetDir": "C:\\Users\\artem\\source\\repos\\target_directory",
+    "Overwrite": true
+  }
 }

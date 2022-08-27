@@ -14,7 +14,7 @@ namespace BackupTool.FileLogger
 
         public IDisposable BeginScope<TState>(TState state)
         {
-            return null;
+            return null!;
         }
 
         public bool IsEnabled(LogLevel logLevel)
@@ -22,17 +22,16 @@ namespace BackupTool.FileLogger
             return true;
         }
 
-        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception ex, Func<TState, Exception, string> formatter)
         {
             if (formatter != null)
             {
                 lock (_lock)
                 {
                     string fullFilePath = Path.Combine(savePath, DateTime.Now.ToString("yyyy-MM-dd") + "_log.log");
-                    var n = Environment.NewLine;
                     string exc = "";
-                    if (exception != null) exc = n + exception.GetType() + ": " + exception.Message + n + exception.StackTrace + n;
-                    File.AppendAllText(fullFilePath, logLevel.ToString() + ": " + DateTime.Now.ToString() + " " + formatter(state, exception) + n + exc);
+                    if (ex is not null) exc = $"\r\n{ex.GetType()}: {ex.Message}\r\n{ex.StackTrace}\r\n";
+                    File.AppendAllText(fullFilePath, $"{logLevel}: {DateTime.Now} {formatter(state, ex!)}\r\n{exc}");
                 }
             }
         }
